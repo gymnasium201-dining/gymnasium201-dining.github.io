@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="uk" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Їдальня Гімназії №201 м. Києва — Здорове та смачне харчування</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        },
+                        warm: {
+                            50: '#fffbe8',
+                            100: '#fef3c7',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Alpine JS for light reactive components -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(229, 231, 235, 0.8);
+        }
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(51, 65, 85, 0.8);
+        }
+    </style>
+</head>
+<body x-data="appData()" :class="{ 'dark bg-slate-900 text-slate-100': darkMode, 'bg-amber-50/40 text-slate-800': !darkMode }" class="min-h-screen antialiased flex flex-col justify-between transition-colors duration-300">
+
+    <!-- Header / Navigation Bar -->
+    <header class="sticky top-0 z-50 transition-all duration-300" :class="scrolled ? 'glass-card shadow-md py-3' : 'bg-transparent py-5'">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between">
+                <!-- Brand Logo & Name -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-warm-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+                        <i class="fa-solid font-bold fa-utensils text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-lg leading-tight tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                            Їдальня Гімназії №201
+                            <span class="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-brand-100 text-brand-700 dark:bg-brand-900/60 dark:text-brand-300">НАССР</span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Смачно • Здорово • З любов'ю</p>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex items-center gap-1 bg-white/80 dark:bg-slate-800/80 p-1.5 rounded-full border border-slate-200/80 dark:border-slate-700/80 shadow-sm text-sm font-medium">
+                    <a href="#schedule" class="px-4 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">Розклад</a>
+                    <a href="#about-menu" class="px-4 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">Про меню</a>
+                    <a href="#menu-catalog" class="px-4 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">Страви</a>
+                    <a href="#tips" class="px-4 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">Поради</a>
+                    <a href="#story" class="px-4 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">Мемуари</a>
+                </nav>
+
+                <!-- Action Controls -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- Quick Search Trigger -->
+                    <button @click="openClassSearchModal = true" class="px-3.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 text-xs sm:text-sm font-semibold flex items-center gap-2 border border-amber-500/20 transition">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span class="hidden sm:inline">Мій час обіду</span>
+                    </button>
+
+                    <!-- Dark Mode Toggle -->
+                    <button @click="darkMode = !darkMode" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 transition" title="Змінити тему">
+                        <i class="fa-solid" :class="darkMode ? 'fa-sun text-amber-400' : 'fa-moon'"></i>
+                    </button>
+
+                    <!-- Mobile Menu Toggle Button -->
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        <i class="fa-solid" :class="mobileMenuOpen ? 'fa-xmark' : 'fa-bars'"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation Menu Dropdown -->
+            <div x-show="mobileMenuOpen" x-transition class="md:hidden mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex flex-col gap-2 font-medium">
+                <a @click="mobileMenuOpen = false" href="#schedule" class="px-4 py-2.5 rounded-xl hover:bg-amber-100 dark:hover:bg-slate-800 flex items-center gap-3">
+                    <i class="fa-solid fa-calendar-days text-amber-500"></i> Графік харчування
+                </a>
+                <a @click="mobileMenuOpen = false" href="#about-menu" class="px-4 py-2.5 rounded-xl hover:bg-amber-100 dark:hover:bg-slate-800 flex items-center gap-3">
+                    <i class="fa-solid fa-carrot text-emerald-500"></i> Стандарти та Клопотенко
+                </a>
+                <a @click="mobileMenuOpen = false" href="#menu-catalog" class="px-4 py-2.5 rounded-xl hover:bg-amber-100 dark:hover:bg-slate-800 flex items-center gap-3">
+                    <i class="fa-solid fa-bowl-food text-orange-500"></i> Наше Меню
+                </a>
+                <a @click="mobileMenuOpen = false" href="#tips" class="px-4 py-2.5 rounded-xl hover:bg-amber-100 dark:hover:bg-slate-800 flex items-center gap-3">
+                    <i class="fa-solid fa-lightbulb text-amber-500"></i> Корисні Поради
+                </a>
+                <a @click="mobileMenuOpen = false" href="#story" class="px-4 py-2.5 rounded-xl hover:bg-amber-100 dark:hover:bg-slate-800 flex items-center gap-3">
+                    <i class="fa-solid fa-book-open text-purple-500"></i> Мемуари їдальні
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section class="relative py-12 md:py-20 overflow-hidden">
+            <!-- Background Decorative Elements -->
+            <div class="absolute top-0 right-1/4 w-96 h-96 bg-amber-300/20 dark:bg-amber-600/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-10 w-80 h-80 bg-emerald-300/20 dark:bg-emerald-600/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid lg:grid-cols-12 gap-12 items-center">
+                    <!-- Hero Text Content -->
+                    <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200 text-xs sm:text-sm font-semibold border border-emerald-200 dark:border-emerald-700/50">
+                            <i class="fa-solid fa-heart text-red-500 animate-pulse"></i>
+                            <span>Найкраще для дітей Гімназії №201</span>
+                        </div>
+
+                        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15]">
+                            Збалансоване харчування для <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-amber-500 to-warm-600">енергії та успіху</span>
+                        </h1>
+
+                        <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                            Найкращі запіканки, наваристі супи та ароматні каші, приготовані з любов’ю. Меню за реформою Євгена Клопотенка та стандартами НАССР.
+                        </p>
+
+                        <!-- Quick Class Schedule Lookup Box in Hero -->
+                        <div class="p-4 sm:p-5 rounded-2xl glass-card shadow-xl max-w-xl mx-auto lg:mx-0 border border-amber-200/60 dark:border-slate-700">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+                                <i class="fa-solid fa-magnifying-glass text-amber-500 mr-1"></i> Швидкий пошук: Коли обідає мій клас?
+                            </label>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <div class="relative flex-1">
+                                    <select x-model="selectedClass" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none appearance-none font-medium">
+                                        <option value="">-- Оберіть свій клас --</option>
+                                        <template x-for="item in allClasses" :key="item.name">
+                                            <option :value="item.name" x-text="item.name + ' клас (' + item.time + ')'"></option>
+                                        </template>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                                    </div>
+                                </div>
+                                <button @click="showClassTime()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-warm-600 hover:from-amber-600 hover:to-warm-700 text-white font-bold shadow-lg shadow-amber-500/25 transition active:scale-95 flex items-center justify-center gap-2">
+                                    <span>Переглянути</span>
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </button>
+                            </div>
+
+                            <!-- Found Schedule Highlight Badge -->
+                            <div x-show="selectedClassData" x-transition class="mt-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg">
+                                        <i class="fa-solid fa-utensils"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-amber-800 dark:text-amber-300 font-medium">Час харчування класу <span class="font-bold" x-text="selectedClassData?.name"></span>:</div>
+                                        <div class="text-lg font-extrabold text-amber-900 dark:text-amber-100" x-text="selectedClassData?.time"></div>
+                                    </div>
+                                </div>
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100 font-semibold" x-text="selectedClassData?.group"></span>
+                            </div>
+                        </div>
+
+                        <!-- Highlights Quick Grid -->
+                        <div class="grid grid-cols-3 gap-3 sm:gap-4 pt-2">
+                            <div class="p-3 rounded-xl bg-white/60 dark:bg-slate-800/60 text-center border border-slate-200/50 dark:border-slate-700/50">
+                                <div class="text-amber-600 dark:text-amber-400 font-black text-xl sm:text-2xl">09:05</div>
+                                <div class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">Початок обідів</div>
+                            </div>
+                            <div class="p-3 rounded-xl bg-white/60 dark:bg-slate-800/60 text-center border border-slate-200/50 dark:border-slate-700/50">
+                                <div class="text-emerald-600 dark:text-emerald-400 font-black text-xl sm:text-2xl">100%</div>
+                                <div class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">Свіжі продукти</div>
+                            </div>
+                            <div class="p-3 rounded-xl bg-white/60 dark:bg-slate-800/60 text-center border border-slate-200/50 dark:border-slate-700/50">
+                                <div class="text-purple-600 dark:text-purple-400 font-black text-xl sm:text-2xl">№ 305</div>
+                                <div class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">Постанова КМУ</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hero Visual Card / Interactive Photo Showcase -->
+                    <div class="lg:col-span-5 relative">
+                        <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white dark:border-slate-800 group">
+                            <img src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80" alt="Шкільна їдальня та гаряча страва" class="w-full h-[380px] sm:h-[450px] object-cover group-hover:scale-105 transition duration-700" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent flex flex-col justify-end p-6 text-white">
+                                <span class="px-3 py-1 rounded-full bg-emerald-500/90 text-white text-xs font-bold w-fit mb-2">
+                                    <i class="fa-solid fa-leaf mr-1"></i> Здоровий раціон
+                                </span>
+                                <h3 class="text-xl font-bold">Свіжо, вітамінно та збалансовано</h3>
+                                <p class="text-xs text-slate-200 mt-1">Овочі, фрукти, запіканки та гарячі перші страви щодня у нашій їдальні.</p>
+                            </div>
+                        </div>
+
+                        <!-- Floating Badge -->
+                        <div class="absolute -bottom-6 -left-6 hidden sm:flex items-center gap-3 p-4 rounded-2xl glass-card shadow-2xl border border-white/80 dark:border-slate-700 max-w-xs animate-bounce" style="animation-duration: 4s;">
+                            <div class="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid fa-apple-whole"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-slate-800 dark:text-slate-100">Формуємо здорові звички</div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Зменшено вміст цукру та солі</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Interactive Food Schedule -->
+        <section id="schedule" class="py-16 bg-white/60 dark:bg-slate-800/40 border-y border-slate-200/60 dark:border-slate-700/60 backdrop-blur-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-12">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/80 px-3 py-1 rounded-full">Чіткий таймінг</span>
+                    <h2 class="text-3xl font-extrabold text-slate-900 dark:text-white mt-2">Графік харчування учнів</h2>
+                    <p class="text-slate-600 dark:text-slate-300 mt-2 text-sm sm:text-base">
+                        Дотримуйтесь розкладу, щоб уникнути черг та спокійно насолодитися обідом.
+                    </p>
+                </div>
+
+                <!-- Schedule Controls & Search Tabs -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+                    <!-- Filter Buttons -->
+                    <div class="inline-flex p-1 rounded-xl bg-slate-200/70 dark:bg-slate-700/70 w-full sm:w-auto text-xs sm:text-sm font-semibold">
+                        <button @click="scheduleTab = 'all'" :class="scheduleTab === 'all' ? 'bg-white dark:bg-slate-800 text-amber-600 dark:text-amber-400 shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'" class="flex-1 sm:flex-none px-4 py-2 rounded-lg transition">Усі класи (1-9)</button>
+                        <button @click="scheduleTab = 'primary'" :class="scheduleTab === 'primary' ? 'bg-white dark:bg-slate-800 text-amber-600 dark:text-amber-400 shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'" class="flex-1 sm:flex-none px-4 py-2 rounded-lg transition">1-4 класи</button>
+                        <button @click="scheduleTab = 'senior'" :class="scheduleTab === 'senior' ? 'bg-white dark:bg-slate-800 text-amber-600 dark:text-amber-400 shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'" class="flex-1 sm:flex-none px-4 py-2 rounded-lg transition">5-9 класи</button>
+                        <button @click="scheduleTab = 'gpd'" :class="scheduleTab === 'gpd' ? 'bg-white dark:bg-slate-800 text-amber-600 dark:text-amber-400 shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'" class="flex-1 sm:flex-none px-4 py-2 rounded-lg transition">ГПД</button>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative w-full sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" x-model="scheduleFilter" placeholder="Пошук (наприклад: 3-Б)..." class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                </div>
+
+                <!-- Main Schedule View Grid -->
+                <div class="grid md:grid-cols-3 gap-6" x-show="scheduleTab !== 'gpd'">
+                    <!-- 1-3 Grades Column -->
+                    <div class="glass-card rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700">
+                        <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-200 dark:border-slate-700">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">1</div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 dark:text-white">1 - 3 класи</h3>
+                                <p class="text-xs text-slate-500">Ранкові перерви (09:05 - 10:25)</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2.5">
+                            <template x-for="item in filteredSchedule.filter(i => i.cat === '1-3')" :key="item.name">
+                                <div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition">
+                                    <span class="font-bold text-slate-800 dark:text-slate-200" x-text="item.name"></span>
+                                    <span class="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold" x-text="item.time"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- 4-6 Grades Column -->
+                    <div class="glass-card rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700">
+                        <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-200 dark:border-slate-700">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">2</div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 dark:text-white">4 - 6 класи</h3>
+                                <p class="text-xs text-slate-500">Денні перерви (11:10 - 12:20)</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2.5">
+                            <template x-for="item in filteredSchedule.filter(i => i.cat === '4-6')" :key="item.name">
+                                <div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition">
+                                    <span class="font-bold text-slate-800 dark:text-slate-200" x-text="item.name"></span>
+                                    <span class="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 text-xs font-extrabold" x-text="item.time"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- 7-9 Grades Column -->
+                    <div class="glass-card rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700">
+                        <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-200 dark:border-slate-700">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">3</div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 dark:text-white">7 - 9 класи</h3>
+                                <p class="text-xs text-slate-500">Велика обідня перерва (12:20 - 12:25)</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2.5">
+                            <template x-for="item in filteredSchedule.filter(i => i.cat === '7-9')" :key="item.name">
+                                <div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition">
+                                    <span class="font-bold text-slate-800 dark:text-slate-200" x-text="item.name"></span>
+                                    <span class="px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-xs font-extrabold" x-text="item.time"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extended Day Group (ГПД) Schedule Card View -->
+                <div class="max-w-3xl mx-auto" x-show="scheduleTab === 'gpd' || scheduleTab === 'all'">
+                    <div class="mt-8 glass-card rounded-2xl p-6 shadow-md border-2 border-amber-400/40 dark:border-amber-600/40">
+                        <div class="flex items-center gap-3 mb-4 pb-3 border-b border-slate-200 dark:border-slate-700">
+                            <div class="w-10 h-10 rounded-xl bg-warm-500 text-white flex items-center justify-center font-bold text-xl">
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Графік харчування учнів ГПД (Група подовженого дня)</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Обіди для молодшої школи у другій половині дня</p>
+                            </div>
+                        </div>
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <template x-for="gpd in gpdSchedule" :key="gpd.group">
+                                <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between shadow-sm">
+                                    <div class="font-bold text-slate-800 dark:text-slate-100" x-text="gpd.group"></div>
+                                    <div class="px-3 py-1 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 font-extrabold text-sm" x-text="gpd.time"></div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: About Our Menu & Reform Standards -->
+        <section id="about-menu" class="py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid lg:grid-cols-12 gap-10 items-center">
+                    <!-- Chef Visual Card -->
+                    <div class="lg:col-span-5 relative">
+                        <div class="relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-slate-900 text-white p-8 flex flex-col justify-between min-h-[420px]">
+                            <!-- Decorative background icon -->
+                            <i class="fa-solid fa-kitchen-set text-9xl absolute -right-8 -bottom-8 opacity-10 text-white"></i>
+
+                            <div>
+                                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-semibold mb-4 border border-amber-500/30">
+                                    <i class="fa-solid fa-award"></i> Оновлене меню Клопотенка
+                                </div>
+                                <h3 class="text-2xl font-black text-white leading-tight">Здорові харчові звички з дитинства</h3>
+                                <p class="text-slate-300 text-sm mt-3 leading-relaxed">
+                                    Харчування у Гімназії №201 розроблено відповідно до Постанови КМУ № 305 від 24.03.2021 р., Санітарного регламенту, наказів МОЗ та системи НАССР.
+                                </p>
+                            </div>
+
+                            <div class="pt-6 border-t border-slate-800 mt-6 space-y-3 text-xs text-slate-300">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                                    <span>Безпечність за суворим стандартом НАССР</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                                    <span>Щоденне постачання свіжих інгредієнтів</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reform Principles Checklist -->
+                    <div class="lg:col-span-7 space-y-6">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-3 py-1 rounded-full">Реформа школьної їдальні</span>
+                            <h2 class="text-3xl font-extrabold text-slate-900 dark:text-white mt-2">Про наше оновлене меню</h2>
+                            <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base mt-2">
+                                Школа — це простір, де закладаються основи здорового способу життя. Ми дбаємо про те, щоб кожна страва була корисною та смачною.
+                            </p>
+                        </div>
+
+                        <!-- 5 Key Reform Bullet Points -->
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div class="p-4 rounded-2xl glass-card border border-slate-200/80 dark:border-slate-700/80 flex items-start gap-3">
+                                <div class="p-2.5 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-300 font-bold shrink-0">
+                                    <i class="fa-solid fa-cubes-stacked"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 dark:text-white text-sm">Менше солі та цукру</h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Зменшено споживання цукру й солі задля збереження природного смаку продуктів.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-2xl glass-card border border-slate-200/80 dark:border-slate-700/80 flex items-start gap-3">
+                                <div class="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300 font-bold shrink-0">
+                                    <i class="fa-solid fa-apple-whole"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 dark:text-white text-sm">Більше овочів та фруктів</h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Щоденні салатні мікси, сезонні свіжі фрукти та овочеві нарізки.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-2xl glass-card border border-slate-200/80 dark:border-slate-700/80 flex items-start gap-3">
+                                <div class="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-300 font-bold shrink-0">
+                                    <i class="fa-solid fa-wheat-awn"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 dark:text-white text-sm">Корисні гарніри</h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Пшенична, гречана, вівсяна, булгур та цільнозернові каші.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-2xl glass-card border border-slate-200/80 dark:border-slate-700/80 flex items-start gap-3">
+                                <div class="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 font-bold shrink-0">
+                                    <i class="fa-solid fa-fire-burner"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 dark:text-white text-sm">Дієтична термообробка</h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Використання запікання, тушкування та варіння замість обсмажування.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Balanced Nutrition Statement -->
+                        <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-4 text-xs sm:text-sm text-slate-700 dark:text-slate-200">
+                            <i class="fa-solid fa-scale-balanced text-2xl text-amber-600 shrink-0"></i>
+                            <div>
+                                <span class="font-bold block text-slate-900 dark:text-white">Баланс білків, жирів та вуглеводів</span>
+                                Меню повністю відповідає віковим потребам учнів для стабільного постачання енергії протягом шкільного дня.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Interactive Dish Menu Catalog -->
+        <section id="menu-catalog" class="py-16 bg-white/50 dark:bg-slate-800/30 border-t border-slate-200/60 dark:border-slate-700/60">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-warm-600 dark:text-warm-400 bg-warm-100 dark:bg-warm-950/80 px-3 py-1 rounded-full">Смачні пропозиції</span>
+                        <h2 class="text-3xl font-extrabold text-slate-900 dark:text-white mt-2">Наше Меню</h2>
+                        <p class="text-slate-600 dark:text-slate-300 text-sm mt-1">Оберіть категорію або скористайтесь пошуком для перегляду страв</p>
+                    </div>
+
+                    <!-- Dish Search Bar -->
+                    <div class="relative w-full md:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" x-model="dishSearch" placeholder="Шукати страву..." class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
+                    </div>
+                </div>
+
+                <!-- Menu Category Filter Pills -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-none mb-8">
+                    <template x-for="cat in menuCategories" :key="cat.id">
+                        <button @click="selectedCategory = cat.id" :class="selectedCategory === cat.id ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-2">
+                            <i :class="cat.icon"></i>
+                            <span x-text="cat.name"></span>
+                        </button>
+                    </template>
+                </div>
+
+                <!-- Dishes Grid -->
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <template x-for="dish in filteredDishes" :key="dish.id">
+                        <div class="glass-card rounded-2xl overflow-hidden border border-slate-200/80 dark:border-slate-700/80 hover:shadow-xl transition group flex flex-col justify-between">
+                            <div>
+                                <!-- Dish Image Container -->
+                                <div class="relative h-48 overflow-hidden bg-slate-100 dark:bg-slate-800">
+                                    <img :src="dish.image" :alt="dish.title" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/600x400/f59e0b/ffffff?text=Гімназія+201'">
+                                    <div class="absolute top-3 left-3 flex gap-2">
+                                        <span class="px-2.5 py-1 rounded-full bg-slate-900/70 backdrop-blur-md text-white text-[11px] font-semibold" x-text="dish.categoryName"></span>
+                                        <template x-if="dish.isKlopotenko">
+                                            <span class="px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[11px] font-bold">
+                                                <i class="fa-solid fa-leaf text-[10px] mr-1"></i>Клопотенко
+                                            </span>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Dish Info -->
+                                <div class="p-5">
+                                    <h3 class="font-bold text-lg text-slate-900 dark:text-white" x-text="dish.title"></h3>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2" x-text="dish.description"></p>
+
+                                    <!-- Nutrition Tags -->
+                                    <div class="flex items-center gap-3 mt-4 text-[11px] text-slate-600 dark:text-slate-300 font-medium border-t border-slate-100 dark:border-slate-700/50 pt-3">
+                                        <span class="flex items-center gap-1">
+                                            <i class="fa-solid fa-fire text-amber-500"></i>
+                                            <span x-text="dish.calories + ' ккал'"></span>
+                                        </span>
+                                        <span>•</span>
+                                        <span class="flex items-center gap-1">
+                                            <i class="fa-solid fa-weight-hanging text-emerald-500"></i>
+                                            <span x-text="dish.weight"></span>
+                                        </span>
+                                        <span>•</span>
+                                        <span class="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 font-semibold" x-text="dish.dietTag"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bottom Card Actions -->
+                            <div class="px-5 pb-5 pt-0">
+                                <button @click="openDishDetail(dish)" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-amber-500 dark:bg-slate-800 dark:hover:bg-amber-500 hover:text-white text-slate-700 dark:text-slate-200 text-xs font-bold transition flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    <span>Склад та поживна цінність</span>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Empty State Search Result -->
+                <div x-show="filteredDishes.length === 0" class="text-center py-12">
+                    <i class="fa-solid fa-utensils-slash text-4xl text-slate-300 dark:text-slate-600 mb-3"></i>
+                    <p class="text-slate-500 dark:text-slate-400 font-medium">Страви за вашим запитом не знайдено.</p>
+                    <button @click="dishSearch = ''; selectedCategory = 'all'" class="mt-3 text-xs text-amber-600 font-bold underline">Скинути фільтри</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Interactive Monologue of the Canteen ("Якби їдальня вміла говорить") -->
+        <section id="story" class="py-16 relative overflow-hidden">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="glass-card rounded-3xl p-8 sm:p-12 shadow-2xl border border-amber-200/80 dark:border-slate-700 relative">
+                    <!-- Quote Decorative Icon -->
+                    <i class="fa-solid fa-quote-right absolute top-6 right-8 text-6xl text-amber-500/10 pointer-events-none"></i>
+
+                    <div class="max-w-2xl">
+                        <span class="px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 text-xs font-extrabold uppercase tracking-wide">
+                            <i class="fa-solid fa-book-open mr-1"></i> Атмосферний куточок
+                        </span>
+                        <h2 class="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white mt-3">Якби їдальня вміла говорити...</h2>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Мемуари шкільної кулінарії Гімназії №201</p>
+                    </div>
+
+                    <div class="mt-6 space-y-4 text-slate-700 dark:text-slate-200 text-sm sm:text-base leading-relaxed italic border-l-4 border-amber-500 pl-4 sm:pl-6 my-6">
+                        <p>
+                            «Сьогодні чудесний день! Я вже вдосвіта при роботі — праця кипить біля моїх плит. Он вариться узвар та компот для моїх гостей. Через нього я хочу передати силу природи та вітамінний заряд для їхньої енергії та бадьорості.
+                        </p>
+                        <p>
+                            А он у темряві та затишку підходить тісто для смачнючих булочок, які зачарують своїм неперевершеним ароматом пів школи та зберуть галасливу чергу на перерві. Поруч поволі закіпає пшенична каша — мати всіх каш. Цінність цього зерна важко переоцінити, воно ще з діда-прадіда панує на наших столах як цариця!
+                        </p>
+                        <p>
+                            Нарешті той дзвінок! Діточки збігаються до мене в очікуванні смакоти та гарного настрою! Вони найцінніші мої гості. Я неймовірно щаслива, коли бачу ті сповнені задоволенням оченята та чую брязкіт ложечок!»
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-600 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-heart"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-slate-800 dark:text-slate-200 text-sm">Команда їдальні Гімназії №201</div>
+                                <div>Поварі, помічники, дієтична сестра та адміністрація школи</div>
+                            </div>
+                        </div>
+
+                        <button @click="showStoryToast = true; setTimeout(() => showStoryToast = false, 3000)" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold transition flex items-center gap-2">
+                            <i class="fa-solid fa-thumbs-up"></i>
+                            <span>Подякувати кухарям</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Tips & Brain Fuel Visualizer -->
+        <section id="tips" class="py-16 bg-slate-900 text-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-12">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400 bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30">Здоровий вибір</span>
+                    <h2 class="text-3xl font-extrabold text-white mt-2">Новини та Корисні Поради</h2>
+                    <p class="text-slate-300 text-sm sm:text-base mt-2">Як харчуватися з користю для навчання та самопочуття</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Tip 1 Card -->
+                    <div class="bg-slate-800/80 rounded-2xl overflow-hidden border border-slate-700 flex flex-col justify-between hover:border-amber-500/50 transition group shadow-lg">
+                        <div>
+                            <!-- Card Header Image -->
+                            <div class="relative h-48 overflow-hidden bg-slate-900">
+                                <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=600&q=80" alt="Планування часу в їдальні" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/600x400/1e293b/f59e0b?text=Плануйте+час'">
+                                <div class="absolute top-3 left-3 px-3 py-1 rounded-full bg-amber-500/90 text-slate-900 text-xs font-bold flex items-center gap-1.5 shadow">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                    <span>Організація</span>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-lg font-bold text-white mb-2">1. Плануйте час, щоб уникнути черг</h3>
+                                <p class="text-xs text-slate-300 leading-relaxed">
+                                    Чітко дотримуйтесь графіку харчування свого класу. Так вам не доведеться стояти в чергах, ви зможете спокійно обрати страву без зайвої штовханини та насолодитися їжею сповна.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="px-6 pb-6 pt-4 border-t border-slate-700/50 text-[11px] text-amber-400 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-circle-info"></i> Порада для комфорту
+                        </div>
+                    </div>
+
+                    <!-- Tip 2 Card (Interactive Brain Fuel) -->
+                    <div class="bg-slate-800/80 rounded-2xl overflow-hidden border border-slate-700 flex flex-col justify-between hover:border-emerald-500/50 transition group shadow-lg">
+                        <div>
+                            <!-- Card Header Image -->
+                            <div class="relative h-48 overflow-hidden bg-slate-900">
+                                <img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=600&q=80" alt="Здорове паливо для мозку" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/600x400/1e293b/10b981?text=Паливо+для+мозку'">
+                                <div class="absolute top-3 left-3 px-3 py-1 rounded-full bg-emerald-500/90 text-slate-900 text-xs font-bold flex items-center gap-1.5 shadow">
+                                    <i class="fa-solid fa-brain"></i>
+                                    <span>Здоровий раціон</span>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-lg font-bold text-white mb-2">2. Обирайте «паливо» для мозку</h3>
+                                <p class="text-xs text-slate-300 leading-relaxed">
+                                    Замість солодощів чи булочок звертайте увагу на повноцінні обіди з кашами, овочами та м'ясом чи рибою.
+                                </p>
+
+                                <!-- Interactive Brain Fuel Comparison Box -->
+                                <div class="mt-4 p-3 rounded-xl bg-slate-900/80 border border-slate-700 text-xs">
+                                    <div class="font-bold text-emerald-400 mb-1">Складні вуглеводи + Білок:</div>
+                                    <div class="text-slate-300 text-[11px]">Дають стабільну енергію та мозок працює краще весь день!</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-6 pb-6 pt-4 border-t border-slate-700/50 text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-bolt"></i> Енергія для високих оцінок
+                        </div>
+                    </div>
+
+                    <!-- Tip 3 Card (Etiquette) -->
+                    <div class="bg-slate-800/80 rounded-2xl overflow-hidden border border-slate-700 flex flex-col justify-between hover:border-indigo-500/50 transition group shadow-lg">
+                        <div>
+                            <!-- Card Header Image -->
+                            <div class="relative h-48 overflow-hidden bg-slate-900">
+                                <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=600&q=80" alt="Етикет чистого столу" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/600x400/1e293b/6366f1?text=Чистий+стіл'">
+                                <div class="absolute top-3 left-3 px-3 py-1 rounded-full bg-indigo-500/90 text-white text-xs font-bold flex items-center gap-1.5 shadow">
+                                    <i class="fa-solid fa-sparkles"></i>
+                                    <span>Культура харчування</span>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-lg font-bold text-white mb-2">3. «Етикет чистого столу»</h3>
+                                <p class="text-xs text-slate-300 leading-relaxed">
+                                    Завжди прибирайте за собою тарілки та сміття. Це вияв поваги до працівників їдальні та запорука того, що наступному учню буде приємно сісти за чистий стіл.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="px-6 pb-6 pt-4 border-t border-slate-700/50 text-[11px] text-indigo-400 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-hand-holding-heart"></i> Повага та затишок
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Class Search Modal Popup -->
+    <div x-show="openClassSearchModal" x-transition class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" style="display: none;">
+        <div @click.away="openClassSearchModal = false" class="bg-white dark:bg-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-700">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+                <h3 class="font-bold text-slate-900 dark:text-white text-lg">Пошук розкладу класу</h3>
+                <button @click="openClassSearchModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="py-4 space-y-4">
+                <p class="text-xs text-slate-500 dark:text-slate-400">Оберіть свій клас зі списку, щоб дізнатися час обіду:</p>
+                <select x-model="selectedClass" class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium">
+                    <option value="">-- Виберіть клас --</option>
+                    <template x-for="item in allClasses" :key="item.name">
+                        <option :value="item.name" x-text="item.name + ' клас (' + item.time + ')'"></option>
+                    </template>
+                </select>
+
+                <template x-if="selectedClassData">
+                    <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-center">
+                        <div class="text-xs text-amber-800 dark:text-amber-300">Клас <span class="font-extrabold" x-text="selectedClassData?.name"></span> обідає о:</div>
+                        <div class="text-3xl font-black text-amber-600 dark:text-amber-400 my-1" x-text="selectedClassData?.time"></div>
+                        <div class="text-[11px] text-slate-500">Будьте вчасно та дотримуйтесь порядку!</div>
+                    </div>
+                </template>
+            </div>
+            <div class="pt-2">
+                <button @click="openClassSearchModal = false" class="w-full py-3 rounded-xl bg-slate-900 dark:bg-slate-100 dark:text-slate-900 text-white font-bold text-sm">Зрозуміло</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dish Detail Modal -->
+    <div x-show="activeDish" x-transition class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" style="display: none;">
+        <div @click.away="activeDish = null" class="bg-white dark:bg-slate-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700">
+            <div class="relative h-48">
+                <img :src="activeDish?.image" :alt="activeDish?.title" class="w-full h-full object-cover">
+                <button @click="activeDish = null" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-900/60 text-white flex items-center justify-center hover:bg-slate-900">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200 text-xs font-bold" x-text="activeDish?.categoryName"></span>
+                    <template x-if="activeDish?.isKlopotenko">
+                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200 text-xs font-bold">
+                            <i class="fa-solid fa-leaf text-[10px] mr-1"></i>Рецепт Клопотенка
+                        </span>
+                    </template>
+                </div>
+
+                <h3 class="text-xl font-black text-slate-900 dark:text-white" x-text="activeDish?.title"></h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2" x-text="activeDish?.description"></p>
+
+                <!-- Nutritional Macros Grid -->
+                <div class="grid grid-cols-3 gap-2 my-4 text-center">
+                    <div class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700/50">
+                        <div class="text-xs text-slate-400">Калорійність</div>
+                        <div class="font-bold text-slate-800 dark:text-slate-100 text-sm" x-text="activeDish?.calories + ' ккал'"></div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700/50">
+                        <div class="text-xs text-slate-400">Порція</div>
+                        <div class="font-bold text-slate-800 dark:text-slate-100 text-sm" x-text="activeDish?.weight"></div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700/50">
+                        <div class="text-xs text-slate-400">Спосіб</div>
+                        <div class="font-bold text-emerald-600 dark:text-emerald-400 text-sm" x-text="activeDish?.dietTag"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                    <div><span class="font-bold text-slate-900 dark:text-white">Складники:</span> <span x-text="activeDish?.ingredients"></span></div>
+                    <div><span class="font-bold text-slate-900 dark:text-white">Алергени:</span> <span x-text="activeDish?.allergens || 'Відсутні'"></span></div>
+                </div>
+
+                <button @click="activeDish = null" class="w-full mt-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition">
+                    Закрити
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thank You Toast Notification -->
+    <div x-show="showStoryToast" x-transition class="fixed bottom-5 right-5 z-50 p-4 rounded-2xl bg-emerald-600 text-white shadow-2xl flex items-center gap-3 text-xs font-bold">
+        <i class="fa-solid fa-circle-check text-lg"></i>
+        <span>Дякуємо! Вашу подяку кухарям передано! ❤️</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-800 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <!-- Col 1 -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2 text-white font-bold text-base">
+                        <div class="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-utensils"></i>
+                        </div>
+                        <span>Гімназія №201 м. Києва</span>
+                    </div>
+                    <p class="text-slate-400 leading-relaxed">
+                        Якісне, здорове та смачне харчування для учнів 1-9 класів та ГПД.
+                    </p>
+                </div>
+
+                <!-- Col 2 -->
+                <div>
+                    <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Нормативні бази</h4>
+                    <ul class="space-y-2">
+                        <li>Постанова КМУ № 305 від 24.03.2021 р.</li>
+                        <li>Санітарний регламент МОЗ України</li>
+                        <li>Стандарти безпеки НАССР</li>
+                        <li>Реформа Євгена Клопотенка</li>
+                    </ul>
+                </div>
+
+                <!-- Col 3 -->
+                <div>
+                    <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Навігація</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#schedule" class="hover:text-amber-400 transition">Графік харчування</a></li>
+                        <li><a href="#about-menu" class="hover:text-amber-400 transition">Про меню</a></li>
+                        <li><a href="#menu-catalog" class="hover:text-amber-400 transition">Каталог страв</a></li>
+                        <li><a href="#tips" class="hover:text-amber-400 transition">Поради щодо раціону</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4 -->
+                <div>
+                    <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Наші ресурси</h4>
+                    <div class="flex items-center gap-3">
+                        <a href="https://sites.google.com/view/gymnasium201-dining" target="_blank" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-amber-500 hover:text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-globe"></i>
+                        </a>
+                        <a href="#" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-blue-600 hover:text-white flex items-center justify-center transition">
+                            <i class="fa-brands fa-facebook-f"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-slate-900 text-center text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+                <div>© 2026 Їдальня Гімназії №201 м. Києва. Всі права захищено.</div>
+                <div class="text-[11px]">Приготовано з любов'ю для здобувачів освіти.</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Alpine JS Application Data & Logic -->
+    <script>
+        function appData() {
+            return {
+                darkMode: false,
+                scrolled: false,
+                mobileMenuOpen: false,
+                openClassSearchModal: false,
+                scheduleTab: 'all',
+                scheduleFilter: '',
+                selectedClass: '',
+                activeDish: null,
+                selectedCategory: 'all',
+                dishSearch: '',
+                showStoryToast: false,
+
+                init() {
+                    window.addEventListener('scroll', () => {
+                        this.scrolled = window.scrollY > 20;
+                    });
+                },
+
+                // Schedules Data
+                allClasses: [
+                    { name: '1-А', time: '09:05', cat: '1-3', group: '1 класи' },
+                    { name: '1-Б', time: '09:10', cat: '1-3', group: '1 класи' },
+                    { name: '1-В', time: '09:15', cat: '1-3', group: '1 класи' },
+                    { name: '2-А', time: '09:20', cat: '1-3', group: '2 класи' },
+                    { name: '2-Б', time: '10:05', cat: '1-3', group: '2 класи' },
+                    { name: '2-В', time: '10:10', cat: '1-3', group: '2 класи' },
+                    { name: '3-А', time: '10:15', cat: '1-3', group: '3 класи' },
+                    { name: '3-Б', time: '10:20', cat: '1-3', group: '3 класи' },
+                    { name: '3-В', time: '10:25', cat: '1-3', group: '3 класи' },
+                    { name: '4-А', time: '11:10', cat: '4-6', group: '4 класи' },
+                    { name: '4-Б', time: '11:15', cat: '4-6', group: '4 класи' },
+                    { name: '4-В', time: '11:20', cat: '4-6', group: '4 класи' },
+                    { name: '5-А', time: '11:25', cat: '4-6', group: '5 класи' },
+                    { name: '5-Б', time: '11:25', cat: '4-6', group: '5 класи' },
+                    { name: '5-В', time: '11:25', cat: '4-6', group: '5 класи' },
+                    { name: '6-А', time: '12:20', cat: '4-6', group: '6 класи' },
+                    { name: '6-Б', time: '12:20', cat: '4-6', group: '6 класи' },
+                    { name: '6-В', time: '12:20', cat: '4-6', group: '6 класи' },
+                    { name: '7-А', time: '12:20', cat: '7-9', group: '7 класи' },
+                    { name: '7-Б', time: '12:20', cat: '7-9', group: '7 класи' },
+                    { name: '7-В', time: '12:20', cat: '7-9', group: '7 класи' },
+                    { name: '8-А', time: '12:25', cat: '7-9', group: '8 класи' },
+                    { name: '8-Б', time: '12:25', cat: '7-9', group: '8 класи' },
+                    { name: '8-В', time: '12:25', cat: '7-9', group: '8 класи' },
+                    { name: '9-А', time: '12:25', cat: '7-9', group: '9 класи' },
+                    { name: '9-Б', time: '12:25', cat: '7-9', group: '9 класи' },
+                    { name: '9-В', time: '12:25', cat: '7-9', group: '9 класи' }
+                ],
+
+                gpdSchedule: [
+                    { group: '1 класи', time: '13:30 - 14:00' },
+                    { group: '2 класи', time: '14:15 - 14:35' },
+                    { group: '3 класи', time: '14:35 - 14:55' },
+                    { group: '4 класи', time: '14:55 - 15:15' }
+                ],
+
+                // Menu Categories
+                menuCategories: [
+                    { id: 'all', name: 'Усі страви', icon: 'fa-solid fa-border-all' },
+                    { id: 'zaz', name: 'Запіканки', icon: 'fa-solid fa-cheese' },
+                    { id: 'soups', name: 'Супи', icon: 'fa-solid fa-bowl-rice' },
+                    { id: 'kash', name: 'Каші', icon: 'fa-solid fa-bowl-food' },
+                    { id: 'meat', name: 'М\'ясні страви', icon: 'fa-solid fa-drumstick-bite' },
+                    { id: 'fish', name: 'Риба', icon: 'fa-solid fa-fish' },
+                    { id: 'salads', name: 'Салати', icon: 'fa-solid fa-carrot' },
+                    { id: 'omelets', name: 'Омлети', icon: 'fa-solid fa-egg' },
+                    { id: 'drinks', name: 'Напої', icon: 'fa-solid fa-glass-water' },
+                    { id: 'fruits', name: 'Фрукти', icon: 'fa-solid fa-apple-whole' },
+                    { id: 'bread', name: 'Хліб', icon: 'fa-solid fa-bread-slice' }
+                ],
+
+                dishes: [
+                    // === ОМЛЕТИ ===
+                    {
+                        id: 101,
+                        categoryId: 'omelets',
+                        categoryName: 'Омлети',
+                        title: 'Омлет з овочами',
+                        description: 'Ніжний запечений омлет із додаванням суміші свіжих овочів.',
+                        calories: 165,
+                        weight: '130г',
+                        dietTag: 'Запікання',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Яйця курячі, молоко 2.5%, солодкий перець, зелений горошок, морква, сіль йодована.',
+                        allergens: 'Яйця, молоко'
+                    },
+                    {
+                        id: 102,
+                        categoryId: 'omelets',
+                        categoryName: 'Омлети',
+                        title: 'Пухкий омлет з орегано',
+                        description: 'Повітряний паровий омлет, приправлений духмяним орегано.',
+                        calories: 155,
+                        weight: '120г',
+                        dietTag: 'Приготування на парі',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1612240498936-65f5101365d2?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Яйця курячі, молоко 2.5%, орегано сушений, масло вершкове, дрібка солі.',
+                        allergens: 'Яйця, молоко'
+                    },
+                    {
+                        id: 103,
+                        categoryId: 'omelets',
+                        categoryName: 'Омлети',
+                        title: 'Фрітата з овочами',
+                        description: 'Традиційна запечена італійська запіканка з яєць та сезонних овочів.',
+                        calories: 180,
+                        weight: '140г',
+                        dietTag: 'Запікання',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1510693206972-df098062cb71?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Яйця курячі, морква, кабачок, томати, зелень кропу, оливкова олія.',
+                        allergens: 'Яйця'
+                    },
+                    {
+                        id: 104,
+                        categoryId: 'omelets',
+                        categoryName: 'Омлети',
+                        title: 'Фрітата з твердим сиром',
+                        description: 'Запечена яєчна фрітата з скоринкою з нежирного твердого сиру.',
+                        calories: 210,
+                        weight: '135г',
+                        dietTag: 'Запікання',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1584177188004-233fd0316824?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Яйця курячі, молоко, сир твердий нежирний, вершкове масло, зелень.',
+                        allergens: 'Яйця, молоко'
+                    },
+
+                    // === РИБА ===
+                    {
+                        id: 201,
+                        categoryId: 'fish',
+                        categoryName: 'Риба',
+                        title: 'Риба тушкована з овочами',
+                        description: 'Соковите філе білої риби, тушковане в пасерованій моркві та цибулі.',
+                        calories: 145,
+                        weight: '120г',
+                        dietTag: 'Тушкування',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Філе минтая/хек, морква, цибуля ріпчаста, томатна паста, олія, лавровий лист.',
+                        allergens: 'Риба'
+                    },
+                    {
+                        id: 202,
+                        categoryId: 'fish',
+                        categoryName: 'Риба',
+                        title: 'Рибні снеки',
+                        description: 'Ніжні котлетки з рибного фаршу, запечені в цільнозерновому паніруванні.',
+                        calories: 170,
+                        weight: '100г',
+                        dietTag: 'Запікання',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Філе риби, хліб пшеничний цільнозерновий, яйце, олійна паніровка.',
+                        allergens: 'Риба, глютен, яйця'
+                    },
+
+                    // === ФРУКТИ ===
+                    {
+                        id: 301,
+                        categoryId: 'fruits',
+                        categoryName: 'Фрукти',
+                        title: 'Апельсин',
+                        description: 'Соковитий свіжий апельсин, багатий на вітамін C.',
+                        calories: 47,
+                        weight: '100г',
+                        dietTag: 'Свіжі фрукти',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Свіжий порційний апельсин.',
+                        allergens: 'Цитрусові'
+                    },
+                    {
+                        id: 302,
+                        categoryId: 'fruits',
+                        categoryName: 'Фрукти',
+                        title: 'Банан',
+                        description: 'Солодкий банан — чудове джерело калію та швидкої здорової енергії.',
+                        calories: 89,
+                        weight: '120г',
+                        dietTag: 'Свіжі фрукти',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Свіжий порційний банан.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 303,
+                        categoryId: 'fruits',
+                        categoryName: 'Фрукти',
+                        title: 'Груша',
+                        description: 'Свіжа ароматна груша з високим вмістом клітковини.',
+                        calories: 57,
+                        weight: '100г',
+                        dietTag: 'Свіжі фрукти',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Свіжа сортна груша.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 304,
+                        categoryId: 'fruits',
+                        categoryName: 'Фрукти',
+                        title: 'Яблуко',
+                        description: 'Хрустке українське яблуко сезонних сортів.',
+                        calories: 52,
+                        weight: '100г',
+                        dietTag: 'Свіжі фрукти',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Свіже яблуко.',
+                        allergens: 'Відсутні'
+                    },
+
+                    // === ХЛІБ ===
+                    {
+                        id: 401,
+                        categoryId: 'bread',
+                        categoryName: 'Хліб',
+                        title: 'Батон',
+                        description: 'Свіжий пшеничний батон до перших та dissatisfaction других страв.',
+                        calories: 260,
+                        weight: '30г',
+                        dietTag: 'Випічка',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Борошно пшеничне вищого ґатунку, вода, дріжджі, сіль.',
+                        allergens: 'Глютен'
+                    },
+
+                    // === СУПИ ===
+                    {
+                        id: 501,
+                        categoryId: 'soups',
+                        categoryName: 'Супи',
+                        title: 'Борщ український',
+                        description: 'Традиційний український борщ із буряком, капустою та зеленню.',
+                        calories: 140,
+                        weight: '250г',
+                        dietTag: 'Варіння',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Буряк, капуста білокачанна, картопля, морква, цибуля, томатна паста, зелень.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 502,
+                        categoryId: 'soups',
+                        categoryName: 'Супи',
+                        title: 'Суп гороховий',
+                        description: 'Поживний та наваристий суп із жовтого гороху з овочами.',
+                        calories: 160,
+                        weight: '250г',
+                        dietTag: 'Варіння',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Горох сухий, картопля, морква, цибуля, зелень петрушки, олія.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 503,
+                        categoryId: 'soups',
+                        categoryName: 'Супи',
+                        title: 'Суп гречаний',
+                        description: 'Легкий та корисний суп із гречаною крупою та овочевою пасеровкою.',
+                        calories: 115,
+                        weight: '250г',
+                        dietTag: 'Варіння',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Крупа гречана, картопля, морква, цибуля, олія соняшникова, зелень.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 504,
+                        categoryId: 'soups',
+                        categoryName: 'Супи',
+                        title: 'Суп з макаронними виробами',
+                        description: 'Прозорий легкий бульйон з овочами та фігурними макаронами.',
+                        calories: 130,
+                        weight: '250г',
+                        dietTag: 'Варіння',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Макаронні вироби з твердих сортів, картопля, морква, цибуля, зелень.',
+                        allergens: 'Глютен'
+                    },
+                    {
+                        id: 505,
+                        categoryId: 'soups',
+                        categoryName: 'Супи',
+                        title: 'Суп круп\'яний',
+                        description: 'Дієтичний суп із додаванням вівсяної або рис-крупи.',
+                        calories: 125,
+                        weight: '250г',
+                        dietTag: 'Варіння',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1588566565463-180a5b2090d2?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Крупа (вівсяна/рисова), картопля, морква, цибуля порей, зелень.',
+                        allergens: 'Глютен (якщо вівсяна)'
+                    },
+                    {
+                        id: 506,
+                        categoryId: 'soups',
+                        categoryName: 'Супи',
+                        title: 'Суп овочевий',
+                        description: 'Вітамінний перша страва з кабачками, картоплею, морквою та зеленню.',
+                        calories: 105,
+                        weight: '250г',
+                        dietTag: 'Варіння',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Картопля, морква, брокколі/кабачок, зелений горошок, кріп.',
+                        allergens: 'Відсутні'
+                    },
+
+                    // === М'ЯСНІ СТРАВИ ===
+                    {
+                        id: 601,
+                        categoryId: 'meat',
+                        categoryName: 'М\'ясні страви',
+                        title: 'Бігос з гречкою',
+                        description: 'Поживна страва з тушкованого нежирного м\'яса з капустою та гречаною кашею.',
+                        calories: 280,
+                        weight: '180г',
+                        dietTag: 'Тушкування',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'М\'ясо куряче/свинина нежирна, капуста тушкована, гречка, морква, томат.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 602,
+                        categoryId: 'meat',
+                        categoryName: 'М\'ясні страви',
+                        title: 'Кнелі з курки',
+                        description: 'Дуже ніжні парові котлетки з курячого філе.',
+                        calories: 165,
+                        weight: '90г',
+                        dietTag: 'Приготування на парі',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Філе куряче, молоко, хліб пшеничний, білок яйця, сіль.',
+                        allergens: 'Глютен, молоко, яйця'
+                    },
+                    {
+                        id: 603,
+                        categoryId: 'meat',
+                        categoryName: 'М\'ясні страви',
+                        title: 'Котлета по-міланськи з сиром',
+                        description: 'Запечена куряча котлета з начинкою з твердого сиру.',
+                        calories: 230,
+                        weight: '100г',
+                        dietTag: 'Запікання',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Куряче фарш-філе, сир твердий нежирний, сухарі цільнозернові, спеції.',
+                        allergens: 'Глютен, молоко'
+                    },
+                    {
+                        id: 604,
+                        categoryId: 'meat',
+                        categoryName: 'М\'ясні страви',
+                        title: 'Курка тушкована в соусі',
+                        description: 'Шматочки соковитого курячого філе в ніжній білій підливці.',
+                        calories: 190,
+                        weight: '120г',
+                        dietTag: 'Тушкування',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Філе курки, сметана 15%/молоко, морква, борошно пшеничне, зелень.',
+                        allergens: 'Молоко, глютен'
+                    },
+                    {
+                        id: 605,
+                        categoryId: 'meat',
+                        categoryName: 'М\'ясні страви',
+                        title: 'Курячий шніцель',
+                        description: 'Запечений курячий шніцель у хрусткому легку паніруванні.',
+                        calories: 220,
+                        weight: '100г',
+                        dietTag: 'Запікання',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Філе куряче, яйце, панірувальні сухарі, олія.',
+                        allergens: 'Глютен, яйця'
+                    },
+                    {
+                        id: 606,
+                        categoryId: 'meat',
+                        categoryName: 'М\'ясні страви',
+                        title: 'Печеня по-домашньому з куркою',
+                        description: 'Тушкована картопля зі шматочками курячого м\'яса та овочами.',
+                        calories: 250,
+                        weight: '200г',
+                        dietTag: 'Тушкування',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Картопля, філе курки, морква, цибуля, соняшникова олія, лавровий лист.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 607,
+                        categoryId: 'meat',
+                        categoryName: 'М\'ясні страви',
+                        title: 'Плов з курячим м\'ясом',
+                        description: 'Ароматний плов із довгозернистим рисом, куркою та куркумою.',
+                        calories: 270,
+                        weight: '200г',
+                        dietTag: 'Припускання',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Рис, куряче м\'ясо, морква, цибуля, куркума, олія.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 608,
+                        categoryId: 'meat',
+                        categoryName: 'М\'ясні страви',
+                        title: 'Рагу з курки та карі',
+                        description: 'Овочево-м\'ясне рагу з делікатним ароматним нотками карі.',
+                        calories: 210,
+                        weight: '180г',
+                        dietTag: 'Тушкування',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Куряче філе, кабачки, морква, перець солодкий, дрібка карі.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 609,
+                        categoryId: 'meat',
+                        categoryName: 'М\'ясні страви',
+                        title: 'Тефтеля куряча в соусі',
+                        description: 'Запечені м\'ясні кульки з рисом у томатно-овочевому соусі.',
+                        calories: 215,
+                        weight: '110г',
+                        dietTag: 'Запікання',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Фарш курячий, рис, морква, томати, цибуля.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 610,
+                        categoryId: 'meat',
+                        categoryName: 'М\'ясні страви',
+                        title: 'Фрикаделька з курки',
+                        description: 'Соковита запечена куряча фрикаделька.',
+                        calories: 175,
+                        weight: '90г',
+                        dietTag: 'Запікання',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Філе куряче, цибуля ріпчаста, білок яєчний, зелень.',
+                        allergens: 'Яйця'
+                    },
+
+                    // === НАПОЇ ===
+                    {
+                        id: 701,
+                        categoryId: 'drinks',
+                        categoryName: 'Напої',
+                        title: 'Сік',
+                        description: 'Натуральний фруктовий сік освітлений (яблучний/мультифрукт).',
+                        calories: 80,
+                        weight: '200мл',
+                        dietTag: 'Напій',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1622543925917-763c34d1a86e?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Сік фруктовий відновлений без доданого цукру.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 702,
+                        categoryId: 'drinks',
+                        categoryName: 'Напої',
+                        title: 'Чай каркаде',
+                        description: 'Освіжаючий кислуватий рубіновий чай із пелюсток суданської троянди.',
+                        calories: 25,
+                        weight: '200мл',
+                        dietTag: 'Настій',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Пелюстки каркаде, питна вода, мінімальна кількість цукру.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 703,
+                        categoryId: 'drinks',
+                        categoryName: 'Напої',
+                        title: 'Какао',
+                        description: 'Ароматне гаряче какао на молоці.',
+                        calories: 110,
+                        weight: '200мл',
+                        dietTag: 'Гарячий напій',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Какао-порошок натуральний, молоко 2.5%, дрібка цукру.',
+                        allergens: 'Молоко'
+                    },
+                    {
+                        id: 704,
+                        categoryId: 'drinks',
+                        categoryName: 'Напої',
+                        title: 'Компот',
+                        description: 'Вітамінний компот із свіжих або заморожених ягодах та яблук.',
+                        calories: 45,
+                        weight: '200мл',
+                        dietTag: 'Варіння',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Яблука, ягоди (полуниця/смородина), вода питна.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 705,
+                        categoryId: 'drinks',
+                        categoryName: 'Напої',
+                        title: 'Чай з лимоном',
+                        description: 'Запобігає застуді: чорний чай із часточкою свіжого лимона.',
+                        calories: 30,
+                        weight: '200мл',
+                        dietTag: 'Настій',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Чорний чай байховий, лимон свіжий, вода.',
+                        allergens: 'Цитрусові'
+                    },
+                    {
+                        id: 706,
+                        categoryId: 'drinks',
+                        categoryName: 'Напої',
+                        title: 'Узвар',
+                        description: 'Традиційний узвар із сухофруктів без додавання цукру.',
+                        calories: 55,
+                        weight: '200мл',
+                        dietTag: 'Варіння',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Сушені яблука, груші, чорнослив, шипшина, вода.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 707,
+                        categoryId: 'drinks',
+                        categoryName: 'Напої',
+                        title: 'Чай масала',
+                        description: 'Пряний заспокійливий чай із молоком та корисними спеціями.',
+                        calories: 85,
+                        weight: '200мл',
+                        dietTag: 'Заварювання',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Чай чорний, молоко, кориця, імбир, гвоздика.',
+                        allergens: 'Молоко'
+                    },
+
+                    // === САЛАТИ ===
+                    {
+                        id: 801,
+                        categoryId: 'salads',
+                        categoryName: 'Салати',
+                        title: 'Вітамінний салат',
+                        description: 'Хрусткий салат із білокачанної капусти, соковитої моркви та лимонного соку.',
+                        calories: 75,
+                        weight: '100г',
+                        dietTag: 'Свіжі овочі',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Капуста білокачанна, морква, олія нерафінована, лимонний сік.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 802,
+                        categoryId: 'salads',
+                        categoryName: 'Салати',
+                        title: 'Ікра кабачкова',
+                        description: 'Ніжна тушкована кабачкова ікра власного приготування.',
+                        calories: 90,
+                        weight: '100г',
+                        dietTag: 'Запікання/Тушкування',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1592417817098-8f3d6ef23a85?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Кабачки, морква, цибуля, томатна паста, олія.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 803,
+                        categoryId: 'salads',
+                        categoryName: 'Салати',
+                        title: 'Овочеве асорті із солоних овочів',
+                        description: 'Асорті з квашених/солоних огірків та томатів.',
+                        calories: 35,
+                        weight: '100г',
+                        dietTag: 'Соління',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1589135123122-eb1500418ce1?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Солоні огірки, бочкові томати.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 804,
+                        categoryId: 'salads',
+                        categoryName: 'Салати',
+                        title: 'Овочі натуральні (сезонні)',
+                        description: 'Нарізка зі свіжих сезонних овочів (огірок, солодкий перець, томат).',
+                        calories: 25,
+                        weight: '100г',
+                        dietTag: 'Свіжі овочі',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Свіжі огірки/перець/томати порційні.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 805,
+                        categoryId: 'salads',
+                        categoryName: 'Салати',
+                        title: 'Салат із буряка та ароматної олії',
+                        description: 'Відварений тертий буряк, заправлений запашною соняшниковою олією.',
+                        calories: 85,
+                        weight: '100г',
+                        dietTag: 'Варіння',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Буряк столовий, олія соняшникова, дрібка солі.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 806,
+                        categoryId: 'salads',
+                        categoryName: 'Салати',
+                        title: 'Салат з буряка та сметани',
+                        description: 'Солодкий відварений буряк із легким заправленням з нежирної сметани.',
+                        calories: 95,
+                        weight: '100г',
+                        dietTag: 'Варіння',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Буряк відварений, сметана 15%, сіль.',
+                        allergens: 'Молоко'
+                    },
+                    {
+                        id: 807,
+                        categoryId: 'salads',
+                        categoryName: 'Салати',
+                        title: 'Салат з капусти та ароматної олії',
+                        description: 'Ніжна нашаткована капуста з духмяною олією.',
+                        calories: 70,
+                        weight: '100г',
+                        dietTag: 'Свіжі овочі',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Капуста білокачанна, олія соняшникова нерафінована, зелень.',
+                        allergens: 'Відсутні'
+                    },
+                    {
+                        id: 808,
+                        categoryId: 'salads',
+                        categoryName: 'Салати',
+                        title: 'Салат з капусти та зеленого горошку',
+                        description: 'Соковита капуста із зеленим ніжним горошком.',
+                        calories: 80,
+                        weight: '100г',
+                        dietTag: 'Свіжі овочі',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Капуста білокачанна, зелений горошок консервований/заморожений, олія.',
+                        allergens: 'Відсутні'
+                    },
+
+                    // === ЗАПІКАНКИ ===
+                    {
+                        id: 901,
+                        categoryId: 'zaz',
+                        categoryName: 'Запіканки',
+                        title: 'Львівський сирник з морквою',
+                        description: 'Ароматний запечений кисломолочний сирник із додаванням моркви.',
+                        calories: 220,
+                        weight: '150г',
+                        dietTag: 'Запікання',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Сир кисломолочний 9%, морква, яйця курячі, манна крупа, ваніль.',
+                        allergens: 'Молоко, яйця, глютен'
+                    },
+                    {
+                        id: 902,
+                        categoryId: 'zaz',
+                        categoryName: 'Запіканки',
+                        title: 'Запіканка сирна',
+                        description: 'Класична пухка сирна запіканка із поливкою з ягідного соусу.',
+                        calories: 210,
+                        weight: '150г',
+                        dietTag: 'Запікання',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Сир кисломолочний 9%, яйця, манна крупа, соус ягідний.',
+                        allergens: 'Молоко, яйця, глютен'
+                    },
+                    {
+                        id: 903,
+                        categoryId: 'zaz',
+                        categoryName: 'Запіканки',
+                        title: 'Лапшевник з сиром',
+                        description: 'Запечений макаронник з кисломолочним сиром та дрібкою кориці.',
+                        calories: 240,
+                        weight: '160г',
+                        dietTag: 'Запікання',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Макаронні вироби, сир кисломолочний, яйця, вершкове масло.',
+                        allergens: 'Глютен, молоко, яйця'
+                    },
+
+                    // === КАШІ ===
+                    {
+                        id: 1001,
+                        categoryId: 'kash',
+                        categoryName: 'Каші',
+                        title: 'Пшенична каша з маслом',
+                        description: 'Розсипчаста пшенична каша з вершковим маслом.',
+                        calories: 185,
+                        weight: '180г',
+                        dietTag: 'Варіння',
+                        isKlopotenko: false,
+                        image: 'https://images.unsplash.com/photo-1517673400267-0251440c45dc?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Крупа пшенична, вершкове масло, сіль йодована.',
+                        allergens: 'Глютен, молоко'
+                    },
+                    {
+                        id: 1002,
+                        categoryId: 'kash',
+                        categoryName: 'Каші',
+                        title: 'Гречана каша рассыпчатая',
+                        description: 'Корисна гречана каша — джерело заліза та складних вуглеводів.',
+                        calories: 170,
+                        weight: '180г',
+                        dietTag: 'Варіння',
+                        isKlopotenko: true,
+                        image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
+                        ingredients: 'Крупа гречана ядриця, олія соняшникова/масло.',
+                        allergens: 'Відсутні'
+                    }
+                ],
+
+                get selectedClassData() {
+                    if (!this.selectedClass) return null;
+                    return this.allClasses.find(c => c.name === this.selectedClass);
+                },
+
+                get filteredSchedule() {
+                    let list = this.allClasses;
+                    if (this.scheduleTab === 'primary') {
+                        list = list.filter(i => i.cat === '1-3' || (i.name.startsWith('4')));
+                    } else if (this.scheduleTab === 'senior') {
+                        list = list.filter(i => !i.name.startsWith('1') && !i.name.startsWith('2') && !i.name.startsWith('3') && !i.name.startsWith('4'));
+                    }
+                    if (this.scheduleFilter.trim() !== '') {
+                        const query = this.scheduleFilter.toLowerCase();
+                        list = list.filter(i => i.name.toLowerCase().includes(query) || i.time.includes(query));
+                    }
+                    return list;
+                },
+
+                get filteredDishes() {
+                    return this.dishes.filter(dish => {
+                        const matchesCategory = this.selectedCategory === 'all' || dish.categoryId === this.selectedCategory;
+                        const matchesSearch = dish.title.toLowerCase().includes(this.dishSearch.toLowerCase()) || 
+                                              dish.description.toLowerCase().includes(this.dishSearch.toLowerCase());
+                        return matchesCategory && matchesSearch;
+                    });
+                },
+
+                showClassTime() {
+                    if (this.selectedClass) {
+                        this.openClassSearchModal = true;
+                    }
+                },
+
+                openDishDetail(dish) {
+                    this.activeDish = dish;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
